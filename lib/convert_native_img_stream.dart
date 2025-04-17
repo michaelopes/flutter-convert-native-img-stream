@@ -10,16 +10,10 @@ class ConvertNativeImgStream {
   }
 
   Future<File?> convertImg(
-      Uint8List imgBytes,
-      int width,
-      int height,
-      String pathToSave,
-      {
-        int rotationFix = 90,
-        int quality = 100
-      }
-  ) async {
-    final converted = convertImgToBytes(imgBytes, width, height, rotationFix: rotationFix, quality: quality);
+      Uint8List imgBytes, int width, int height, String pathToSave,
+      {int rotationFix = 90, int quality = 100}) async {
+    final converted = convertImgToBytes(imgBytes, width, height,
+        rotationFix: rotationFix, quality: quality);
     return compute((List<dynamic> params) async {
       final bytes = params[0];
       final path = params[1];
@@ -28,25 +22,26 @@ class ConvertNativeImgStream {
   }
 
   Future<Uint8List?> convertImgToBytes(
-      Uint8List imgBytes,
-      int width,
-      int height,
-      {
-        int rotationFix = 90,
-        int quality = 100
-      }
-  ) async {
-    if(imgBytes.isEmpty) {
+    Uint8List imgBytes,
+    int width,
+    int height, {
+    int rotationFix = 90,
+    int quality = 100,
+    bool enablePostProcessing = true,
+  }) async {
+    if (imgBytes.isEmpty) {
       throw Exception("imgBytes are empty");
     }
-    if(width == 0 || height == 0) {
+    if (width == 0 || height == 0) {
       throw Exception("width or height cant be zero");
     }
     Uint8List? jpegData = imgBytes;
     if (Platform.isAndroid) {
-      jpegData = await ConvertNativeImgStreamPlatform.instance.convert(
-          imgBytes, width, height, quality
-      );
+      jpegData = await ConvertNativeImgStreamPlatform.instance
+          .convert(imgBytes, width, height, quality);
+      if (!enablePostProcessing) {
+        return jpegData;
+      }
     }
     return compute((List<dynamic> params) async {
       final int w = params[0];
@@ -63,8 +58,7 @@ class ConvertNativeImgStream {
             width: w.toInt(),
             bytes: bytes.buffer,
             format: img.Format.uint8,
-            order: img.ChannelOrder.bgra
-        );
+            order: img.ChannelOrder.bgra);
         final imgData = img.encodeJpg(im, quality: quality);
         return imgData;
       }
@@ -72,7 +66,7 @@ class ConvertNativeImgStream {
   }
 
   Future<File?> _saveImageToFile(Uint8List? jpegData, String appDir) async {
-    if(jpegData == null) {
+    if (jpegData == null) {
       return null;
     }
     try {
