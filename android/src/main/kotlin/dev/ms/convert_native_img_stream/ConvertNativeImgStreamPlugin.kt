@@ -71,7 +71,7 @@ class ConvertNativeImgStreamPlugin: FlutterPlugin, MethodCallHandler {
     val width = arg?.get("width") as? Int
     val height = arg?.get("height") as? Int
     val quality = arg?.get("quality") as? Int ?: 100
-    val rotation = arg?.get("rotation") as? Float ?: 0.0
+    val rotation = (arg?.get("rotation") as? Number)?.toFloat() ?: 0f
 
     if (bytes == null || width == null || height == null) {
       result.error("Null argument", "bytes, width, height must not be null", null)
@@ -84,14 +84,14 @@ class ConvertNativeImgStreamPlugin: FlutterPlugin, MethodCallHandler {
         val out = ByteArrayOutputStream()
         yuv.compressToJpeg(Rect(0, 0, width, height), quality, out)
         val jpegBytes = out.toByteArray()
-        if(rotation != 0) {
+        if(rotation != 0f) {
           val bitmap = BitmapFactory.decodeByteArray(jpegBytes, 0, jpegBytes.size)
           // 🌀 Usa bitmap do pool já com tamanho rotacionado
           val rotatedBitmap = BitmapPool.get(bitmap.height, bitmap.width, bitmap.config)
           // 🌀 Aplica rotação usando canvas + matrix
           val canvas = Canvas(rotatedBitmap)
           val matrix = Matrix().apply {
-            postRotate(rotation as Float)
+            postRotate(rotation)
             postTranslate(bitmap.height.toFloat(), 0f)
           }
           canvas.drawBitmap(bitmap, matrix, null)
