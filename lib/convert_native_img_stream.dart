@@ -38,7 +38,7 @@ class ConvertNativeImgStream {
     Uint8List? jpegData = imgBytes;
     if (Platform.isAndroid) {
       jpegData = await ConvertNativeImgStreamPlatform.instance
-          .convert(imgBytes, width, height, quality);
+          .convert(imgBytes, width, height, quality, rotationFix);
       if (!enablePostProcessing) {
         return jpegData;
       }
@@ -47,11 +47,13 @@ class ConvertNativeImgStream {
       final int w = params[0];
       final int h = params[1];
       final Uint8List bytes = params[2];
-      final int rotate = params[3];
+
       if (Platform.isAndroid) {
-        img.Image? image = img.decodeJpg(bytes);
-        final rotated = img.copyRotate(image!, angle: rotate);
-        return img.encodeJpg(rotated, quality: quality);
+        if (quality != 100) {
+          img.Image? image = img.decodeJpg(bytes);
+          return img.encodeJpg(image!, quality: quality);
+        }
+        return bytes;
       } else {
         img.Image im = img.Image.fromBytes(
             height: h.toInt(),
@@ -62,7 +64,7 @@ class ConvertNativeImgStream {
         final imgData = img.encodeJpg(im, quality: quality);
         return imgData;
       }
-    }, [width, height, jpegData, rotationFix]);
+    }, [width, height, jpegData]);
   }
 
   Future<File?> _saveImageToFile(Uint8List? jpegData, String appDir) async {

@@ -9,7 +9,8 @@ abstract class ConvertNativeImgStreamPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static ConvertNativeImgStreamPlatform _instance = MethodChannelConvertNativeImgStream();
+  static ConvertNativeImgStreamPlatform _instance =
+      MethodChannelConvertNativeImgStream();
 
   /// The default instance of [ConvertNativeImgStreamPlatform] to use.
   ///
@@ -29,10 +30,11 @@ abstract class ConvertNativeImgStreamPlatform extends PlatformInterface {
   }
 
   Future<Uint8List?> convert(
-      Uint8List imgBytes,
-      int width,
-      int height,
-      int quality
+    Uint8List imgBytes,
+    int width,
+    int height,
+    int quality,
+    int rotationFix,
   ) {
     throw UnimplementedError('convert(*) has not been implemented.');
   }
