@@ -86,16 +86,21 @@ class ConvertNativeImgStreamPlugin: FlutterPlugin, MethodCallHandler {
         val jpegBytes = out.toByteArray()
         if(rotation != 0f) {
           val bitmap = BitmapFactory.decodeByteArray(jpegBytes, 0, jpegBytes.size)
-          // 🌀 Usa bitmap do pool já com tamanho rotacionado
-          val rotatedBitmap = BitmapPool.get(bitmap.height, bitmap.width, bitmap.config)
-          // 🌀 Aplica rotação usando canvas + matrix
+
+          var centerX = bitmap.width / 2f;
+          var centerY = bitmap.height / 2f;
+
+          val rotatedBitmap = BitmapPool.get(bitmap.width, bitmap.height, bitmap.config)
           val canvas = Canvas(rotatedBitmap)
           val matrix = Matrix().apply {
-            postRotate(rotation)
-            postTranslate(bitmap.height.toFloat(), 0f)
+            postRotate(rotation, centerX, centerY)
+            if(rotation == 270f) {
+              postScale(-1f, 1f, centerX, centerY)
+            }
           }
-          canvas.drawBitmap(bitmap, matrix, null)
 
+          canvas.drawBitmap(bitmap, matrix, null)
+          
           val finalOut = ByteArrayOutputStream()
           rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, finalOut)
           val rotatedBytes = finalOut.toByteArray()

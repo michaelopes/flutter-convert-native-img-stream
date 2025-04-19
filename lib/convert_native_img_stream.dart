@@ -12,8 +12,13 @@ class ConvertNativeImgStream {
   Future<File?> convertImg(
       Uint8List imgBytes, int width, int height, String pathToSave,
       {int rotationFix = 90, int quality = 100}) async {
-    final converted = convertImgToBytes(imgBytes, width, height,
-        rotationFix: rotationFix, quality: quality);
+    final converted = convertImgToBytes(
+      imgBytes,
+      width,
+      height,
+      rotationFix: rotationFix,
+      quality: quality,
+    );
     return compute((List<dynamic> params) async {
       final bytes = params[0];
       final path = params[1];
