@@ -27,9 +27,6 @@ class MethodChannelConvertNativeImgStream
     int quality,
     int rotationFix,
   ) async {
-    if (Platform.isIOS) {
-      throw UnimplementedError('convert(*) has not been implemented for iOS');
-    }
     final result = await methodChannel.invokeMethod('convert', {
       "bytes": imgBytes,
       "width": width,

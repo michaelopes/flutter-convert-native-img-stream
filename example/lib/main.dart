@@ -63,8 +63,7 @@ class _MyAppState extends State<MyApp> {
       );
       _controller?.initialize().then((_) {
         _controller?.startImageStream((image) {
-
-          if(capture) {
+          if (capture) {
             setState(() {
               converting = false;
             });
@@ -72,17 +71,17 @@ class _MyAppState extends State<MyApp> {
             _controller?.pausePreview();
             _convertNativeImgStreamPlugin
                 .convertImgToBytes(
-                  image.planes.first.bytes,
-                  image.width,
-                  image.height,
-                )
+              image.planes.first.bytes,
+              image.width,
+              image.height,
+            )
                 .then((value) {
-                  imageBytes = value;
-                  converting = false;
-                  setState(() {
-
-                  });
-                });
+              imageBytes = value;
+              converting = false;
+              setState(() {});
+            }).catchError((e) {
+              print(e);
+            });
           }
         });
         if (!mounted) {
@@ -93,12 +92,11 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-
   Widget _body() {
     if (_cameras.isEmpty) return Container();
     if (_controller == null) return Container();
     if (_controller?.value.isInitialized == false) return Container();
-    if(converting) {
+    if (converting) {
       return const Center(
         child: CircularProgressIndicator(),
       );
@@ -108,32 +106,20 @@ class _MyAppState extends State<MyApp> {
       child: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          if(imageBytes == null)
+          if (imageBytes == null)
             Center(
               child: CameraPreview(
                 _controller!,
               ),
             )
           else
-            Container(
-              color: Colors.white,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  const Expanded(flex: 10,
-                      child: Center(
-                          child: Text(
-                              "Converted image",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)
-                          )
-                      )
-                  ),
-                  Expanded(flex: 90, child: Image.memory(imageBytes!, fit: BoxFit.cover))
-                ],
-              ),
+            Image.memory(
+              imageBytes!,
+              fit: BoxFit.contain,
+              width: double.infinity,
+              height: double.infinity,
             ),
-          if(imageBytes == null)
+          if (imageBytes == null)
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -141,8 +127,7 @@ class _MyAppState extends State<MyApp> {
                     onPressed: () {
                       capture = true;
                     },
-                    child: const Text("Pause & Convert Frame")
-                )
+                    child: const Text("Pause & Convert Frame"))
               ],
             )
         ],
@@ -154,12 +139,10 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: _body()
-      ),
+          appBar: AppBar(
+            title: const Text('Plugin example app'),
+          ),
+          body: _body()),
     );
   }
-
 }

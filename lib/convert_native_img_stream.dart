@@ -32,7 +32,6 @@ class ConvertNativeImgStream {
     int height, {
     int rotationFix = 90,
     int quality = 100,
-    bool enablePostProcessing = true,
   }) async {
     if (imgBytes.isEmpty) {
       throw Exception("imgBytes are empty");
@@ -41,35 +40,9 @@ class ConvertNativeImgStream {
       throw Exception("width or height cant be zero");
     }
     Uint8List? jpegData = imgBytes;
-    if (Platform.isAndroid) {
-      jpegData = await ConvertNativeImgStreamPlatform.instance
-          .convert(imgBytes, width, height, quality, rotationFix);
-      if (!enablePostProcessing) {
-        return jpegData;
-      }
-    }
-    return compute((List<dynamic> params) async {
-      final int w = params[0];
-      final int h = params[1];
-      final Uint8List bytes = params[2];
-
-      if (Platform.isAndroid) {
-        if (quality != 100) {
-          img.Image? image = img.decodeJpg(bytes);
-          return img.encodeJpg(image!, quality: quality);
-        }
-        return bytes;
-      } else {
-        img.Image im = img.Image.fromBytes(
-            height: h.toInt(),
-            width: w.toInt(),
-            bytes: bytes.buffer,
-            format: img.Format.uint8,
-            order: img.ChannelOrder.bgra);
-        final imgData = img.encodeJpg(im, quality: quality);
-        return imgData;
-      }
-    }, [width, height, jpegData]);
+    jpegData = await ConvertNativeImgStreamPlatform.instance
+        .convert(imgBytes, width, height, quality, rotationFix);
+    return jpegData;
   }
 
   Future<File?> _saveImageToFile(Uint8List? jpegData, String appDir) async {
